@@ -1,12 +1,12 @@
-::in progress
+
 @echo off
 Title Windows Optimizer
-:: Check if script is running with admin privileges
+
 net session >nul 2>&1
 if %errorLevel% == 0 (
     goto :continue
 ) else (
-    :: Prompt the user to run the batch file as an administrator using the UAC prompt
+
     echo This script requires administrator privileges. Please click "Yes" in the User Account Control prompt to continue.
     powershell -Command "Start-Process '%~dpnx0' -Verb runAs"
     exit /b %errorlevel%
