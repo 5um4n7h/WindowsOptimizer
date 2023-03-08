@@ -24,7 +24,7 @@ jobs:
 
       - name: Build exe file
         run: |
-          curl -LJO "https://sourceforge.net/projects/battoexe/files/latest/download"
+          curl -LJO "https://sourceforge.net/projects/bat-to-exe-converter/files/latest/download"
           mkdir battoexe
           tar -xf battoexe.zip -C ./battoexe
           .\battoexe\battoexeconverter.bat -bat file.cmd -exe file.exe
