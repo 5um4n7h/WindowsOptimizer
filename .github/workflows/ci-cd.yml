@@ -13,8 +13,8 @@ jobs:
 
       - name: Install BAT to EXE Converter
         run: |
-          curl -LJO "https://sourceforge.net/projects/battoexe/files/latest/download"
-          Get-ChildItem -Path . -Recurse -Force
+          Invoke-WebRequest -Uri 'https://sourceforge.net/projects/battoexe/files/latest/download' -OutFile 'battoexe.zip'
+          Expand-Archive -Path .\battoexe.zip -DestinationPath .\battoexe
 
       - name: Convert CMD to EXE
         run: .\battoexe\battoexeconverter.bat -bat file.cmd -exe file.exe -icon file.ico
