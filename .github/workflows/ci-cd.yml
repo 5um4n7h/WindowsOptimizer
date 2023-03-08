@@ -26,8 +26,8 @@ jobs:
         run: |
           curl -LJO "https://sourceforge.net/projects/bat-to-exe-converter/files/latest/download"
           mkdir battoexe
-          tar -xf battoexe.zip -C ./battoexe
-          .\battoexe\battoexeconverter.bat -bat file.cmd -exe file.exe
+          tar -xf JET-R.zip -C ./battoexe
+          .\battoexe\JET.exe -bat file.cmd -exe file.exe
 
       - name: Create release
         id: create_release
