@@ -14,10 +14,10 @@ jobs:
       - name: Install BAT to EXE Converter
         run: |
           curl -LJO "https://sourceforge.net/projects/battoexe/files/latest/download"
-          tar -xf "download" --strip-components=1
+          Expand-Archive -Path .\battoexe.zip -DestinationPath .\battoexe
 
       - name: Convert CMD to EXE
-        run: .\battoexeconverter.bat -bat file.cmd -exe file.exe -icon file.ico
+        run: .\battoexe\battoexeconverter.bat -bat file.cmd -exe file.exe
 
       - name: Upload EXE file
         uses: actions/upload-artifact@v2
