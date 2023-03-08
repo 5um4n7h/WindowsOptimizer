@@ -1,39 +1,26 @@
-name: Build and Release EXE
+name: Build EXE
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
 
 jobs:
-  build:
+  build-exe:
     runs-on: windows-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
-      - name: Install PyInstaller
-        run: pip install pyinstaller
-      - name: Build EXE
-        run: pyinstaller --onefile file.cmd
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+
+      - name: Install BAT to EXE Converter
+        run: |
+          curl -LJO "https://sourceforge.net/projects/battoexe/files/latest/download"
+          tar -xf "download" --strip-components=1
+
+      - name: Convert CMD to EXE
+        run: .\battoexeconverter.bat -bat file.cmd -exe file.exe -icon file.ico
+
+      - name: Upload EXE file
+        uses: actions/upload-artifact@v2
         with:
-          tag_name: v1.0.0
-          release_name: Release v1.0.0
-          body: |
-            Description of the release
-          draft: false
-          prerelease: false
-      - name: Upload EXE
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/file.exe
-          asset_name: file.exe
-          asset_content_type: application/octet-stream
+          name: file.exe
+          path: file.exe
