@@ -16,24 +16,28 @@ if %errorLevel% == 0 (
 set username=%USERNAME%
 echo Current logged in user: %username%
 pause
+echo deleting C:\Users\%username%\AppData\Local\Temp, C:\Windows\Prefetch
+
 set tempdir=C:\Users\%username%\AppData\Local\Temp
-echo Taking ownership of directory: %tempdir%
-takeown /f "%tempdir%" /r /d y
-echo Granting full control permissions to directory: %tempdir%
-icacls "%tempdir%" /grant "%username%":(F) /t
-echo Deleting directory: %tempdir%
-RD /S /Q "%tempdir%"
-echo Done.
-pause		
+takeown /f "%tempdir%" /r /d y > nul 2>&1 
+icacls "%tempdir%" /grant "%username%":(F) /t > nul 2>&1
+RD /S /Q "%tempdir%" > nul 2>&1
+		
 set tempdir=C:\Windows\Prefetch
-echo Taking ownership of directory: %tempdir%
-takeown /f "%tempdir%" /r /d y
-echo Granting full control permissions to directory: %tempdir%
-icacls "%tempdir%" /grant "%username%":(F) /t
-echo Deleting directory: %tempdir%
-RD /S /Q "%tempdir%"
+takeown /f "%tempdir%" /r /d y > nul 2>&1
+icacls "%tempdir%" /grant "%username%":(F) /t > nul 2>&1
+RD /S /Q "%tempdir%" > nul 2>&1
+
 echo Done.
 pause
-net stop WSearch
-sc config WSearch start=disabled
+echo deleting windows delivery optimization files
+net stop dosvc > nul 2>&1
+del /F /S /Q "%SystemDrive%\Windows\SoftwareDistribution\Download\*" > nul 2>&1
+net start dosvc > nul 2>&1
+echo Done.
+pause
+echo stopping search indexing
+net stop WSearch > nul 2>&1
+sc config WSearch start=disabled > nul 2>&1
+echo done
 pause
