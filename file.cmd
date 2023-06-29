@@ -19,14 +19,10 @@ pause
 echo deleting C:\Users\%username%\AppData\Local\Temp, C:\Windows\Prefetch
 
 set tempdir=C:\Users\%username%\AppData\Local\Temp
-takeown /f "%tempdir%" /r /d y > nul 2>&1 
-icacls "%tempdir%" /grant "%username%":(F) /t > nul 2>&1
-RD /S /Q "%tempdir%" > nul 2>&1
-		
+del /F /S /Q "%tempdir%" > nul 2>&1
+
 set tempdir=C:\Windows\Prefetch
-takeown /f "%tempdir%" /r /d y > nul 2>&1
-icacls "%tempdir%" /grant "%username%":(F) /t > nul 2>&1
-RD /S /Q "%tempdir%" > nul 2>&1
+del /F /S /Q "%tempdir%" > nul 2>&1
 
 echo Done.
 pause
