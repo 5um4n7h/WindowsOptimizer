@@ -1,6 +1,8 @@
 package com.sumanth.windowsoptimizer;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WindowsOptimizer {
     public static void main(String[] args) {
@@ -21,38 +23,49 @@ public class WindowsOptimizer {
                 }
             }
 
-            // Run handle.exe on the temp directory
+            // Get temp directory
             String tempDir = System.getProperty("java.io.tmpdir");
-            Process handleProcess = new ProcessBuilder(tempHandle.getAbsolutePath(), tempDir).start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(handleProcess.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains(tempDir)) {
-                    String pid = line.split(" ")[1].split(":")[0];
-                    String processName = line.split(" ")[0];  // Get the process name
-                    System.out.println("Killing process: " + processName + " with PID: " + pid);
-                    // Run taskkill with elevated permissions using runas
-                    Process killProcess = Runtime.getRuntime().exec("runas /user:Administrator \"taskkill /F /PID " + pid + "\"");
-                    killProcess.waitFor();
-                }
-            }
-            handleProcess.waitFor();
 
-            // Delete all files in the Temp directory
+            // Loop through files in temp directory and attempt to delete
             File tempFolder = new File(tempDir);
             for (File file : tempFolder.listFiles()) {
-                if (!file.delete()) {
-                    System.err.println("Failed to delete: " + file.getAbsolutePath());
-                    // Log reason for failure
-                    try {
-                        System.out.println("File in use or permission issue for: " + file.getAbsolutePath());
-                        // Attempt to unlock or give more time before retry
-                        Thread.sleep(1000);
-                        if (!file.delete()) {
-                            System.err.println("Retry failed to delete: " + file.getAbsolutePath());
+                if (!file.isDirectory()) {
+                    System.out.println("Checking file: " + file.getAbsolutePath());
+                    // Run handle.exe to find processes using the file
+                    Process handleProcess = new ProcessBuilder(tempHandle.getAbsolutePath(), file.getAbsolutePath()).start();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(handleProcess.getInputStream()));
+                    String line;
+                    List<String> pids = new ArrayList<>();
+
+                    // Parse handle.exe output and find PIDs
+                    while ((line = reader.readLine()) != null) {
+                        if (line.contains(file.getAbsolutePath())) {
+                            String[] parts = line.split(" ");
+                            String pid = parts[1].split(":")[0];
+                            pids.add(pid);  // Store the PID of the process using the file
+                            System.out.println("Process holding the file: PID = " + pid);
                         }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    }
+
+                    handleProcess.waitFor();
+
+                    // If processes are using the file, kill them
+                    for (String pid : pids) {
+                        try {
+                            System.out.println("Killing process with PID: " + pid);
+                            // Kill the process using taskkill
+                            Process killProcess = Runtime.getRuntime().exec("taskkill /F /PID " + pid);
+                            killProcess.waitFor();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    // Attempt to delete the file after killing the process
+                    if (file.delete()) {
+                        System.out.println("Deleted file: " + file.getAbsolutePath());
+                    } else {
+                        System.err.println("Failed to delete file: " + file.getAbsolutePath());
                     }
                 }
             }
@@ -60,6 +73,5 @@ public class WindowsOptimizer {
             e.printStackTrace();
         }
     }
-
 
 }
